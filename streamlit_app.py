@@ -126,5 +126,4 @@ if submit_btn:
 with st.sidebar:
     st.header("About")
     st.info("This app uses a Random Forest Classifier trained on the UCI Heart Disease dataset to predict patient risk.")
-    st.write("---")
-    st.caption("⚠️ **Disclaimer:** This tool is for educational purposes only and does not constitute medical advice.")
+
