@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
-from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
@@ -17,95 +16,106 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. CUSTOM CSS (Replicating the Dark Dashboard Image) ---
+# --- 2. "CREAMY" THEME CSS ---
 st.markdown("""
     <style>
-    /* MAIN BACKGROUND */
+    /* GLOBAL FONTS & BACKGROUND */
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+    
+    html, body, [class*="css"] {
+        font-family: 'Nunito', sans-serif;
+    }
+    
+    /* Creamy/Warm Backgrounds */
     .stApp {
-        background-color: #0b0c0e;
-        color: #e0e0e0;
-        font-family: 'Inter', sans-serif;
+        background-color: #F9F7F2; /* Soft Cream */
+        color: #4A403A; /* Coffee Brown Text */
     }
     
-    /* SIDEBAR STYLING */
+    /* SIDEBAR - Slightly Darker Beige */
     [data-testid="stSidebar"] {
-        background-color: #111317;
-        border-right: 1px solid #2b2f36;
+        background-color: #F0EBE3;
+        border-right: 1px solid #E6E0D4;
     }
     
-    /* CARDS (DASHBOARD WIDGETS) */
+    /* CARDS - White with Soft Warm Shadow */
     .css-card {
-        background-color: #1a1d23;
-        border-radius: 16px;
-        padding: 20px;
-        border: 1px solid #2b2f36;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        background-color: #FFFFFF;
+        border-radius: 20px;
+        padding: 25px;
+        border: 1px solid #EAEaea;
+        box-shadow: 0 10px 25px rgba(200, 180, 160, 0.15); /* Warm Shadow */
         margin-bottom: 20px;
+        transition: transform 0.2s ease;
+    }
+    .css-card:hover {
+        transform: translateY(-3px);
     }
     
     /* HEADERS */
     h1, h2, h3 {
-        color: #ffffff !important;
-        font-weight: 700;
+        color: #2C2420 !important;
+        font-weight: 800;
     }
     
-    /* INPUT FIELDS (Match the dark theme) */
+    /* INPUT FIELDS - Clean White */
     .stNumberInput input, .stSelectbox div[data-baseweb="select"] > div {
-        background-color: #23272f !important;
-        color: white !important;
-        border-radius: 8px;
-        border: 1px solid #3a3f4b;
+        background-color: #FFFFFF !important;
+        color: #4A403A !important;
+        border-radius: 12px;
+        border: 1px solid #D6D0C4;
     }
     
-    /* TOOLTIP ICON COLOR */
-    .stTooltipIcon {
-        color: #a0aab5 !important;
-    }
-
-    /* CUSTOM METRIC STYLE */
-    .metric-label {
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: #8b949e;
-        margin-bottom: 5px;
-    }
-    .metric-value {
-        font-size: 28px;
-        font-weight: 700;
-        color: #ffffff;
-    }
-    .status-pill {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-        margin-top: 5px;
-    }
-    .safe { background-color: rgba(76, 175, 80, 0.2); color: #4caf50; border: 1px solid #4caf50; }
-    .risk { background-color: rgba(255, 82, 82, 0.2); color: #ff5252; border: 1px solid #ff5252; }
-    
-    /* BUTTON STYLING */
+    /* BUTTON STYLING - Soft Gradient */
     div.stButton > button {
-        background: linear-gradient(90deg, #6c5ce7, #a29bfe);
+        background: linear-gradient(135deg, #E6B89C 0%, #E29578 100%); /* Warm Peach/Terracotta */
         color: white;
         border: none;
         padding: 12px 24px;
-        border-radius: 12px;
-        font-weight: 600;
+        border-radius: 15px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
         width: 100%;
-        margin-top: 10px;
+        box-shadow: 0 4px 15px rgba(226, 149, 120, 0.4);
         transition: all 0.3s;
     }
     div.stButton > button:hover {
-        opacity: 0.9;
-        transform: translateY(-2px);
+        transform: scale(1.02);
+        box-shadow: 0 6px 20px rgba(226, 149, 120, 0.6);
     }
+    
+    /* CUSTOM METRICS */
+    .metric-label {
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: #9A8C83; /* Muted Taupe */
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    .metric-value {
+        font-size: 32px;
+        font-weight: 800;
+        color: #2C2420;
+    }
+    
+    /* PILLS */
+    .status-pill {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        margin-top: 5px;
+    }
+    /* Soft Pastel Colors for Status */
+    .safe { background-color: #E3F2E6; color: #2E7D32; } /* Pastel Green */
+    .risk { background-color: #FFEBEE; color: #C62828; } /* Pastel Red */
+    
     </style>
 """, unsafe_allow_html=True)
 
-# --- 3. MULTI-MODEL TRAINING ENGINE ---
+# --- 3. MULTI-MODEL ENGINE (Same Logic) ---
 @st.cache_resource
 def train_models():
     # Load Data
@@ -114,15 +124,15 @@ def train_models():
     X = df.drop('target', axis=1)
     y = df['target']
     
-    # 1. Random Forest (Robust, Non-linear)
+    # 1. Random Forest
     rf = RandomForestClassifier(n_estimators=100, random_state=42)
     rf.fit(X, y)
     
-    # 2. Logistic Regression (Linear, requires scaling)
+    # 2. Logistic Regression
     lr = make_pipeline(StandardScaler(), LogisticRegression())
     lr.fit(X, y)
     
-    # 3. K-Nearest Neighbors (Distance-based, requires scaling)
+    # 3. KNN
     knn = make_pipeline(StandardScaler(), KNeighborsClassifier(n_neighbors=5))
     knn.fit(X, y)
     
@@ -130,42 +140,39 @@ def train_models():
 
 models, feature_names = train_models()
 
-# --- 4. SIDEBAR: INPUTS (With Tooltips) ---
+# --- 4. SIDEBAR INPUTS ---
 with st.sidebar:
-    st.markdown("### 🧬 Patient Data")
-    st.markdown("Input clinical parameters below.")
+    st.image("https://cdn-icons-png.flaticon.com/512/2966/2966486.png", width=50) # Optional Icon
+    st.title("MediDash")
+    st.markdown("Enter patient metrics below.")
     
     with st.form("main_inputs"):
-        # Section 1: Demographics & Vitals
-        st.markdown("**1. Vitals**")
+        st.markdown("### 👤 Vitals")
         age = st.number_input("Age", 20, 100, 50, help="Patient age in years.")
-        sex = st.selectbox("Sex", [1, 0], format_func=lambda x: "Male" if x==1 else "Female", help="Biological sex (1=Male, 0=Female)")
-        trestbps = st.number_input("Resting BP (mm Hg)", 90, 200, 120, help="Resting blood pressure on admission.")
-        chol = st.number_input("Cholesterol (mg/dl)", 100, 600, 200, help="Serum cholestoral in mg/dl.")
+        sex = st.selectbox("Sex", [1, 0], format_func=lambda x: "Male" if x==1 else "Female", help="Biological sex.")
+        trestbps = st.number_input("Resting BP", 90, 200, 120, help="Resting blood pressure (mm Hg).")
+        chol = st.number_input("Cholesterol", 100, 600, 200, help="Serum cholestoral in mg/dl.")
         
-        st.markdown("---")
-        
-        # Section 2: Cardiac Specifics
-        st.markdown("**2. Cardiac Metrics**")
+        st.markdown("### ❤️ Heart Data")
         cp = st.selectbox("Chest Pain Type", [0, 1, 2, 3], 
-                          format_func=lambda x: ["Typical Angina", "Atypical Angina", "Non-anginal", "Asymptomatic"][x],
-                          help="0: Typical Angina\n1: Atypical Angina\n2: Non-anginal Pain\n3: Asymptomatic")
-        thalach = st.slider("Max Heart Rate", 60, 220, 150, help="Maximum heart rate achieved during stress test.")
-        exang = st.selectbox("Exercise Angina?", [0, 1], format_func=lambda x: "No" if x==0 else "Yes", help="Chest pain induced by exercise?")
+                          format_func=lambda x: ["Typical Angina", "Atypical Angina", "Non-anginal", "Asymptomatic"][x])
+        thalach = st.slider("Max Heart Rate", 60, 220, 150)
+        exang = st.selectbox("Exercise Angina?", [0, 1], format_func=lambda x: "No" if x==0 else "Yes")
         
-        with st.expander("Advanced Clinical Parameters"):
-            oldpeak = st.slider("ST Depression", 0.0, 6.0, 1.0, step=0.1, help="ST depression induced by exercise relative to rest.")
-            slope = st.selectbox("ST Slope", [0, 1, 2], help="The slope of the peak exercise ST segment (0=Upsloping, 1=Flat, 2=Downsloping)")
-            ca = st.slider("Major Vessels (0-3)", 0, 3, 0, help="Number of major vessels colored by flourosopy.")
-            thal = st.selectbox("Thalassemia", [0, 1, 2, 3], help="Blood disorder: 1=Normal, 2=Fixed Defect, 3=Reversable Defect")
-            fbs = st.selectbox("Fasting Sugar > 120?", [0, 1], format_func=lambda x: "False" if x==0 else "True", help="Fasting blood sugar > 120 mg/dl")
-            restecg = st.selectbox("ECG Results", [0, 1, 2], help="0: Normal, 1: ST-T Abnormality, 2: LV Hypertrophy")
+        with st.expander("Show Advanced Fields"):
+            oldpeak = st.slider("ST Depression", 0.0, 6.0, 1.0, step=0.1)
+            slope = st.selectbox("ST Slope", [0, 1, 2], help="0: Upsloping, 1: Flat, 2: Downsloping")
+            ca = st.slider("Major Vessels", 0, 3, 0)
+            thal = st.selectbox("Thalassemia", [0, 1, 2, 3], help="1=Normal, 2=Fixed, 3=Reversable")
+            fbs = st.selectbox("Fasting Sugar > 120?", [0, 1], format_func=lambda x: "False" if x==0 else "True")
+            restecg = st.selectbox("ECG Results", [0, 1, 2])
 
-        submit_btn = st.form_submit_button("RUN DIAGNOSTICS")
+        st.markdown("<br>", unsafe_allow_html=True)
+        submit_btn = st.form_submit_button("Analyze Patient")
 
 # --- 5. MAIN DASHBOARD ---
-st.title("Cardio-Analysis Dashboard")
-st.markdown("Real-time Multi-Model Consensus Engine")
+st.markdown("## 📊 Patient Analysis Report")
+st.markdown("Results generated by multi-model consensus engine.")
 
 if submit_btn:
     # Prepare Data
@@ -176,105 +183,94 @@ if submit_btn:
     }])
     input_data = input_data[feature_names]
     
-    # Get Predictions from ALL models
-    results = {}
+    # Get Predictions
     probabilities = {}
-    
+    predictions = {}
     for name, model in models.items():
-        pred = model.predict(input_data)[0]
-        prob = model.predict_proba(input_data)[0][1]
-        results[name] = pred
-        probabilities[name] = prob
+        probabilities[name] = model.predict_proba(input_data)[0][1]
+        predictions[name] = model.predict(input_data)[0]
 
-    # Calculate Consensus (Average Probability)
     avg_risk = np.mean(list(probabilities.values())) * 100
     
-    # --- DASHBOARD LAYOUT ---
-    
-    # ROW 1: SUMMARY CARDS
+    # --- ROW 1: CARDS ---
     c1, c2, c3 = st.columns(3)
     
     with c1:
+        risk_class = "risk" if avg_risk > 50 else "safe"
+        risk_label = "High Risk" if avg_risk > 50 else "Healthy"
         st.markdown(f"""
         <div class="css-card">
-            <div class="metric-label">Overall Risk Score</div>
+            <div class="metric-label">Composite Risk Score</div>
             <div class="metric-value">{avg_risk:.1f}%</div>
-            <div class="status-pill {'risk' if avg_risk > 50 else 'safe'}">
-                {'HIGH RISK' if avg_risk > 50 else 'LOW RISK'}
-            </div>
+            <div class="status-pill {risk_class}">{risk_label}</div>
         </div>
         """, unsafe_allow_html=True)
         
     with c2:
-        agreement = sum(list(results.values()))
+        consensus_count = sum(list(predictions.values()))
         st.markdown(f"""
         <div class="css-card">
-            <div class="metric-label">Model Consensus</div>
-            <div class="metric-value">{agreement}/3 Models</div>
-            <div style="color: #8b949e; font-size: 14px; margin-top: 5px;">
-                Agree on outcome
-            </div>
+            <div class="metric-label">AI Consensus</div>
+            <div class="metric-value">{consensus_count} / 3</div>
+            <div style="font-size: 14px; color: #9A8C83; margin-top: 5px;">Models indicate disease</div>
         </div>
         """, unsafe_allow_html=True)
 
     with c3:
-        primary_model = "Random Forest"
-        rf_conf = probabilities[primary_model] * 100
+        # Confidence of the Random Forest model
+        rf_conf = probabilities['Random Forest'] * 100
         st.markdown(f"""
         <div class="css-card">
-            <div class="metric-label">Primary Confidence</div>
+            <div class="metric-label">Random Forest Conf.</div>
             <div class="metric-value">{rf_conf:.1f}%</div>
-            <div style="color: #8b949e; font-size: 14px; margin-top: 5px;">
-                Based on Random Forest
-            </div>
+            <div style="font-size: 14px; color: #9A8C83; margin-top: 5px;">Primary Model Confidence</div>
         </div>
         """, unsafe_allow_html=True)
 
-    # ROW 2: VISUALIZATION (THE CHART)
-    st.markdown("### 📊 Model Comparison")
+    # --- ROW 2: CHART ---
+    st.markdown("### Model Agreement Analysis")
     
-    # Create a nice dark-themed bar chart
     fig = go.Figure()
     
-    colors = ['#6c5ce7', '#00b894', '#0984e3'] # Purple, Green, Blue
+    # Soft Pastel Colors for the Chart
+    chart_colors = ['#A8DADC', '#457B9D', '#1D3557'] 
     
     fig.add_trace(go.Bar(
         x=list(probabilities.values()),
         y=list(probabilities.keys()),
         orientation='h',
-        marker=dict(color=list(probabilities.values()), colorscale='RdYlGn_r', cmin=0, cmax=1),
+        marker=dict(color=list(probabilities.values()), colorscale='Bluyl', cmin=0, cmax=1),
         text=[f"{p*100:.1f}%" for p in probabilities.values()],
         textposition='auto',
     ))
 
     fig.update_layout(
-        paper_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)', # Transparent to show cream bg
         plot_bgcolor='rgba(0,0,0,0)',
-        font=dict(color='white'),
-        xaxis=dict(range=[0, 1], showgrid=True, gridcolor='#333', title="Probability of Disease"),
-        margin=dict(l=0, r=0, t=20, b=20),
-        height=300
+        font=dict(color='#4A403A', family="Nunito"), # Dark text
+        xaxis=dict(range=[0, 1], showgrid=False, title="Probability"),
+        margin=dict(l=0, r=0, t=10, b=10),
+        height=250
     )
     
     st.plotly_chart(fig, use_container_width=True)
-
-    # ROW 3: DETAILED BREAKDOWN
-    st.markdown("### 📋 Model Breakdown")
-    cols = st.columns(3)
+    
+    # --- ROW 3: DETAILS ---
+    st.markdown("### Individual Model Findings")
+    col_d1, col_d2, col_d3 = st.columns(3)
     
     for i, (name, prob) in enumerate(probabilities.items()):
-        with cols[i]:
-            status_color = "#ff5252" if prob > 0.5 else "#4caf50"
-            status_text = "DETECTED" if prob > 0.5 else "SAFE"
-            
+        status = "Detected" if prob > 0.5 else "Clear"
+        color = "#C62828" if prob > 0.5 else "#2E7D32"
+        
+        with [col_d1, col_d2, col_d3][i]:
             st.markdown(f"""
-            <div class="css-card" style="text-align: center;">
-                <h4 style="margin:0; color: #aaa;">{name}</h4>
-                <h2 style="margin: 10px 0; color: {status_color};">{status_text}</h2>
-                <p style="margin:0; font-size: 14px; color: #666;">Probability: {prob*100:.1f}%</p>
+            <div class="css-card" style="text-align: center; padding: 15px;">
+                <h4 style="margin:0; color: #9A8C83; font-size: 14px;">{name}</h4>
+                <h3 style="margin: 5px 0; color: {color};">{status}</h3>
+                <p style="font-size: 13px; color: #9A8C83;">Risk: {prob*100:.1f}%</p>
             </div>
             """, unsafe_allow_html=True)
 
 else:
-    # EMPTY STATE (Before User Clicks Button)
-    st.info("👈 Enter patient data in the sidebar and click RUN DIAGNOSTICS to see the multi-model analysis.")
+    st.info("👈 Please input patient metrics in the sidebar to generate a report.")
