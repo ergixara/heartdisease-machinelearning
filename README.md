@@ -1,29 +1,96 @@
-🏥 MediDash: Multi-Model Heart Disease Prediction
+# 🏥 MediDash  
+### Multi-Model Heart Disease Risk Prediction Dashboard
 
-This Streamlit application provides an interactive platform for analyzing heart disease risk. Unlike standard single-model predictors, MediDash utilizes a consensus engine that aggregates insights from three distinct machine learning models to provide a more reliable and transparent risk assessment.
+**MediDash** is an interactive **Streamlit-based web application** designed to assess heart disease risk using a **multi-model consensus approach**.  
+Instead of relying on a single algorithm, MediDash combines predictions from multiple machine learning models to deliver a **more robust, transparent, and trustworthy risk assessment**.
 
-Key Features:
-Multi-Model Consensus: Aggregates predictions from Random Forest, Logistic Regression, and K-Nearest Neighbors (KNN).
+---
 
-Composite Risk Score: Calculates a unified probability percentage based on model agreement.
+## 🚀 Why MediDash?
 
-Interactive Patient Vitals: Real-time input for metrics such as age, cholesterol, resting blood pressure, and heart rate.
+Traditional predictors often depend on one model — which can be biased or unstable.  
+**MediDash solves this by aggregating insights from multiple models**, allowing users to understand both the *final decision* and *how each model contributed to it*.
 
-Model Agreement Visualization: Dynamic bar charts showing the individual probability scores for each underlying algorithm.
+---
 
-Tech Stack:
-Frontend: Streamlit
+## ✨ Key Features
 
-Machine Learning: Scikit-Learn
+### 🔀 Multi-Model Consensus Engine
+- Combines predictions from:
+  - **Random Forest**
+  - **Logistic Regression**
+  - **K-Nearest Neighbors (KNN)**
+- Reduces single-model bias and improves reliability
 
-Data Manipulation: Pandas, NumPy
+### 📊 Composite Risk Score
+- Generates a **unified probability (%)**
+- Based on model agreement and confidence levels
 
-Visualization: Matplotlib / Plotly
+### 🧑‍⚕️ Interactive Patient Vitals
+- Real-time input for:
+  - Age  
+  - Cholesterol  
+  - Resting Blood Pressure  
+  - Heart Rate  
+  - Other clinical indicators
 
-The app takes patient data through the sidebar and passes it to three pre-trained models.
+### 📈 Model Agreement Visualization
+- Dynamic bar charts showing:
+  - Individual model probabilities
+  - How strongly models agree or disagree
 
-Individual Predictions: Each model calculates a probability of heart disease.
+### 🧠 Transparent Decision Logic
+- Clearly displays whether:
+  - **0/3**, **1/3**, **2/3**, or **3/3** models indicate risk
 
-Consensus Logic: The app checks for agreement across models (e.g., "2/3 models indicate disease").
+---
 
-Final Output: The user receives a "Clear" or "Risk" status accompanied by a confidence interval.
+## 🛠️ Tech Stack
+
+**Frontend**
+- Streamlit
+
+**Machine Learning**
+- Scikit-Learn
+
+**Data Processing**
+- Pandas  
+- NumPy  
+
+**Visualization**
+- Matplotlib  
+- Plotly  
+
+---
+
+## ⚙️ How It Works
+
+1. **User Input**  
+   Patient data is entered through the Streamlit sidebar.
+
+2. **Model Predictions**  
+   Each pre-trained model independently predicts the probability of heart disease.
+
+3. **Consensus Logic**  
+   - The app evaluates model agreement  
+   - Example: *“2 out of 3 models indicate elevated risk”*
+
+4. **Final Assessment**  
+   - Displays:
+     - **Risk Status**: `Clear` or `Risk`
+     - **Confidence Score**: Combined probability percentage
+
+---
+
+## 📌 Output Example
+
+- ✅ **Clear** — Low predicted risk with strong model agreement  
+- ⚠️ **Risk** — Elevated probability with multi-model confirmation  
+
+Each result is accompanied by **visual explanations**, making the prediction easy to understand — even for non-technical users.
+
+---
+
+## 🎯 Project Goal
+
+MediDash aims to demonstrate how **ensemble learning + explainability** can be applied to healthcare-related decision support systems, emphasizing **accuracy, transparency, and user trust**.
